@@ -14,8 +14,8 @@ FeSettings fe_settings_default(void) {
     s.grade_blending = 0.45;
     s.bloom_radius = 25.0;
     s.bloom_threshold = 0.72;
-    s.saturation = 1.0;
-    s.vibrance = 1.0;
+    s.saturation = 0.0;
+    s.vibrance = 0.0;
     return s;
 }
 

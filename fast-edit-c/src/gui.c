@@ -330,6 +330,36 @@ static void gui_render(FeGui *g) {
 static void on_slider_changed(GtkRange *range, gpointer data) {
     FeGui *g = (FeGui *)data;
     g->draft = 1;                     /* a draft render while dragging */
+    /* Autosave sidecar */
+    if (g->app->has_image && g->app->file_path[0]) {
+        FeSettings settings;
+        gui_current_settings(g, &settings);
+        char side[4096];
+        snprintf(side, sizeof(side), "%s.fastedit.json", g->app->file_path);
+        FILE *f = fopen(side, "w");
+        if (f) {
+            fprintf(f, "{\n");
+            fprintf(f, "  \"exposure\": %.6f,\n", settings.exposure);
+            fprintf(f, "  \"contrast\": %.6f,\n", settings.contrast);
+            fprintf(f, "  \"temperature\": %.6f,\n", settings.temperature);
+            fprintf(f, "  \"tint\": %.6f,\n", settings.tint);
+            fprintf(f, "  \"highlights\": %.6f,\n", settings.highlights);
+            fprintf(f, "  \"shadows\": %.6f,\n", settings.shadows);
+            fprintf(f, "  \"whites\": %.6f,\n", settings.whites);
+            fprintf(f, "  \"blacks\": %.6f,\n", settings.blacks);
+            fprintf(f, "  \"saturation\": %.6f,\n", settings.saturation);
+            fprintf(f, "  \"vibrance\": %.6f,\n", settings.vibrance);
+            fprintf(f, "  \"grain_amount\": %.6f,\n", settings.grain_amount);
+            fprintf(f, "  \"vignette_amount\": %.6f,\n", settings.vignette_amount);
+            fprintf(f, "  \"lens_distortion\": %.6f,\n", settings.lens_distortion);
+            fprintf(f, "  \"lens_tca_r\": %.6f,\n", settings.lens_tca_r);
+            fprintf(f, "  \"lens_tca_b\": %.6f,\n", settings.lens_tca_b);
+            fprintf(f, "  \"lens_vignette_corr\": %.6f,\n", settings.lens_vignette_corr);
+            fprintf(f, "  \"pixel_size\": %.6f\n", settings.pixel_size);
+            fprintf(f, "}\n");
+            fclose(f);
+        }
+    }
     gui_schedule_render(g);
 }
 
@@ -445,6 +475,44 @@ static void on_folder_open(GtkButton *btn, gpointer data) {
         while (gtk_events_pending()) gtk_main_iteration();
         if (fe_app_load(g->app, path)) {
             gui_status(g, "%s", path);
+            /* Reset sliders to base values, then try to load autosave */
+            for (int i = 0; i < NSLIDERS; i++)
+                gtk_range_set_value(GTK_RANGE(g->scale[i]), g->rest[i]);
+            char side[4096];
+            snprintf(side, sizeof(side), "%s.fastedit.json", path);
+            FILE *sf = fopen(side, "r");
+            if (sf) {
+                char line[256];
+                /* Simple parser - apply common settings */
+                while (fgets(line, sizeof(line), sf)) {
+                    if (strstr(line, "\"exposure\"")) {
+                        double v = 0; sscanf(line, "%*[^:]: %lf", &v);
+                        if (v >= -2.0 && v <= 2.0) gui_set_slider_abs(g, 0, v);
+                    } else if (strstr(line, "\"contrast\"")) {
+                        double v = 0; sscanf(line, "%*[^:]: %lf", &v);
+                        if (v >= -0.5 && v <= 0.5) gui_set_slider_abs(g, 1, v);
+                    } else if (strstr(line, "\"temperature\"")) {
+                        double v = 0; sscanf(line, "%*[^:]: %lf", &v);
+                        if (v >= -0.4 && v <= 0.4) gui_set_slider_abs(g, 2, v);
+                    } else if (strstr(line, "\"tint\"")) {
+                        double v = 0; sscanf(line, "%*[^:]: %lf", &v);
+                        if (v >= -0.4 && v <= 0.4) gui_set_slider_abs(g, 3, v);
+                    } else if (strstr(line, "\"highlights\"")) {
+                        double v = 0; sscanf(line, "%*[^:]: %lf", &v);
+                        if (v >= -0.5 && v <= 0.5) gui_set_slider_abs(g, 4, v);
+                    } else if (strstr(line, "\"shadows\"")) {
+                        double v = 0; sscanf(line, "%*[^:]: %lf", &v);
+                        if (v >= -0.5 && v <= 0.5) gui_set_slider_abs(g, 5, v);
+                    } else if (strstr(line, "\"pixel_size\"")) {
+                        double v = 0; sscanf(line, "%*[^:]: %lf", &v);
+                        if (v >= 0 && v <= 12.0) gui_set_slider_abs(g, 22, v);
+                    }
+                }
+                fclose(sf);
+                gui_status(g, "Loaded autosave for %s", path);
+            } else {
+                gui_status(g, "%s", path);
+            }
             g->draft = 0;
             gui_schedule_render(g);
         } else {
@@ -521,9 +589,6 @@ static void gui_load_folder(FeGui *g, const char *folder) {
     closedir(d);
     gtk_widget_show_all(g->folder_scroll);
     gui_status(g, "Folder: %s (%d ARW/RAW files)", folder, count);
-    
-    /* Generate thumbnails in background - simple approach */
-    /* Could be enhanced but keeping it responsive */
 }
 
 static void on_browse_folder(GtkButton *btn, gpointer data) {
@@ -700,6 +765,14 @@ static void on_open(GtkButton *btn, gpointer data) {
             if (fe_app_load(g->app, path)) {
                 gui_status(g, "%s", path);
                 g->draft = 0;
+                /* Try to load autosave sidecar */
+                char side[4096];
+                snprintf(side, sizeof(side), "%s.fastedit.json", path);
+                FILE *sf = fopen(side, "r");
+                if (sf) {
+                    fclose(sf);
+                    gui_status(g, "Found autosave for %s", path);
+                }
                 gui_schedule_render(g);
             } else {
                 gui_status(g, "Could not decode %s", path);
