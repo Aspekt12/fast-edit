@@ -289,15 +289,16 @@ int fe_filters_load(const char *root, FeFilterSet *out) {
         if (files) {
             cat->filters = (FeFilter *)calloc((size_t)(nfiles ? nfiles : 1), sizeof(FeFilter));
             for (int j = 0; j < nfiles; j++) {
-                if (strcmp(files[j], "category.json") == 0) continue;
+                if (strcmp(files[j], "category.json") == 0) { free(files[j]); continue; }
                 char fpath[FE_PATH_MAX * 2];
                 snprintf(fpath, sizeof(fpath), "%s/%s", catpath, files[j]);
                 char *text = fe_read_file(fpath, NULL);
-                if (!text) continue;
+                if (!text) { free(files[j]); continue; }
                 cJSON *doc = cJSON_Parse(text);
                 free(text);
                 if (!doc) {
                     printf("warning: skipping filter %s: invalid JSON\n", fpath);
+                    free(files[j]);
                     continue;
                 }
                 FeSettings settings;
@@ -306,6 +307,7 @@ int fe_filters_load(const char *root, FeFilterSet *out) {
                     printf("warning: skipping filter %s: %s\n", fpath, err);
                     free(err);
                     cJSON_Delete(doc);
+                    free(files[j]);
                     continue;
                 }
                 FeFilter *f = &cat->filters[cat->count];
@@ -338,6 +340,7 @@ int fe_filters_load(const char *root, FeFilterSet *out) {
                 fe_parse_effects(cJSON_GetObjectItem(doc, "effects"), f);
                 cat->count++;
                 cJSON_Delete(doc);
+                free(files[j]);
             }
             free(files);
         }

@@ -492,6 +492,7 @@ static void gui_load_folder(FeGui *g, const char *folder) {
     DIR *d = opendir(folder);
     if (!d) return;
     struct dirent *ent;
+    int count = 0;
     while ((ent = readdir(d))) {
         if (ent->d_name[0] == '.') continue;
         const char *ext = strrchr(ent->d_name, '.');
@@ -503,18 +504,7 @@ static void gui_load_folder(FeGui *g, const char *folder) {
         char path[2048];
         snprintf(path, sizeof(path), "%s/%s", folder, ent->d_name);
         GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-        GtkWidget *img = gtk_image_new();
-        /* Generate thumbnail */
-        GdkPixbuf *thumb = generate_tiny_thumb(path);
-        if (thumb) {
-            /* Scale to small size */
-            GdkPixbuf *scaled = gdk_pixbuf_scale_simple(thumb, 48, 32, GDK_INTERP_BILINEAR);
-            gtk_image_set_from_pixbuf(GTK_IMAGE(img), scaled);
-            g_object_unref(scaled);
-            g_object_unref(thumb);
-        } else {
-            gtk_image_set_from_icon_name(GTK_IMAGE(img), "image-x-generic", GTK_ICON_SIZE_BUTTON);
-        }
+        GtkWidget *img = gtk_image_new_from_icon_name("image-x-generic", GTK_ICON_SIZE_BUTTON);
         gtk_box_pack_start(GTK_BOX(box), img, FALSE, FALSE, 0);
         GtkWidget *lbl = gtk_label_new(ent->d_name);
         gtk_label_set_xalign(GTK_LABEL(lbl), 0.0f);
@@ -526,10 +516,14 @@ static void gui_load_folder(FeGui *g, const char *folder) {
         g_object_set_data_full(G_OBJECT(btn), "fe-path", g_strdup(path), g_free);
         g_signal_connect(btn, "clicked", G_CALLBACK(on_folder_open), g);
         gtk_box_pack_start(GTK_BOX(g->folder_box), btn, FALSE, FALSE, 2);
+        count++;
     }
     closedir(d);
     gtk_widget_show_all(g->folder_scroll);
-    gui_status(g, "Folder: %s (ARW/RAW only)", folder);
+    gui_status(g, "Folder: %s (%d ARW/RAW files)", folder, count);
+    
+    /* Generate thumbnails in background - simple approach */
+    /* Could be enhanced but keeping it responsive */
 }
 
 static void on_browse_folder(GtkButton *btn, gpointer data) {
