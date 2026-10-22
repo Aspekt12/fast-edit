@@ -1,0 +1,12 @@
+{
+  "label": "Atari ST",
+  "description": "Atari ST 16-color style",
+  "settings": {
+    "contrast": 0.28,
+    "exposure": 0.08,
+    "saturation": 0.1,
+    "temperature": 0.1,
+    "tint": -0.02,
+    "pixel_size": 4.0
+  }
+}

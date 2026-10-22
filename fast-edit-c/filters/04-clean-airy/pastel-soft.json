@@ -1,0 +1,39 @@
+{
+  "label": "Pastel Soft",
+  "description": "Candy pastels over a matte base.",
+  "settings": {
+    "temperature": 0.04,
+    "tint": -0.02,
+    "exposure": 0.15,
+    "contrast": -0.08,
+    "shadows": 0.08,
+    "fade": 0.045,
+    "mixer": {
+      "green": [
+        0.0,
+        -0.1,
+        0.06
+      ],
+      "yellow": [
+        0.0,
+        -0.12,
+        0.05
+      ],
+      "blue": [
+        0.0,
+        -0.12,
+        0.05
+      ],
+      "red": [
+        0.0,
+        -0.08,
+        0.0
+      ]
+    },
+    "saturation": -0.1,
+    "vibrance": 0.1,
+    "grain_amount": 0.015,
+    "grain_size": 1.0,
+    "vignette_amount": 0.05
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "label": "White Linen",
+  "description": "Clean warm whites; interiors and daylight.",
+  "settings": {
+    "temperature": 0.06,
+    "exposure": 0.12,
+    "highlights": -0.12,
+    "shadows": 0.06,
+    "fade": 0.01,
+    "mixer": {
+      "yellow": [
+        -2.0,
+        -0.15,
+        0.05
+      ]
+    },
+    "saturation": -0.02,
+    "clarity": 0.03,
+    "grain_amount": 0.008,
+    "grain_size": 1.0
+  }
+}

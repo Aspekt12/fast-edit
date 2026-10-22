@@ -1,0 +1,33 @@
+{
+  "label": "Faded Print",
+  "description": "Sun-bleached old photo found in a drawer.",
+  "settings": {
+    "temperature": 0.08,
+    "exposure": 0.08,
+    "contrast": -0.14,
+    "highlights": -0.1,
+    "shadows": 0.14,
+    "fade": 0.08,
+    "mixer": {
+      "yellow": [
+        -4.0,
+        -0.15,
+        0.0
+      ],
+      "green": [
+        -8.0,
+        -0.2,
+        0.05
+      ],
+      "blue": [
+        0.0,
+        -0.15,
+        0.0
+      ]
+    },
+    "saturation": -0.12,
+    "grain_amount": 0.04,
+    "grain_size": 1.5,
+    "vignette_amount": 0.16
+  }
+}

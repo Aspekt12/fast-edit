@@ -1,0 +1,11 @@
+{
+  "label": "IBM CGA",
+  "description": "IBM CGA 4-color palette style",
+  "settings": {
+    "contrast": 0.35,
+    "exposure": 0.15,
+    "saturation": -0.3,
+    "temperature": 0.05,
+    "pixel_size": 3.0
+  }
+}

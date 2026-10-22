@@ -1,0 +1,12 @@
+{
+  "label": "Macintosh 1-bit",
+  "description": "Classic Macintosh black and white bitmap style",
+  "settings": {
+    "contrast": 0.5,
+    "exposure": -0.15,
+    "saturation": -1.0,
+    "highlights": -0.4,
+    "shadows": 0.4,
+    "pixel_size": 4.0
+  }
+}

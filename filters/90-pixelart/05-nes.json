@@ -1,0 +1,11 @@
+{
+  "label": "NES 8-bit",
+  "description": "NES/Famicom limited palette look",
+  "settings": {
+    "contrast": 0.3,
+    "exposure": 0.05,
+    "saturation": 0.15,
+    "temperature": -0.05,
+    "pixel_size": 4.0
+  }
+}

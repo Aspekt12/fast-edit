@@ -1,0 +1,45 @@
+{
+  "label": "Portra 400",
+  "description": "Soft warm film; kind to skin, gentle curve, faint grain.",
+  "settings": {
+    "temperature": 0.08,
+    "tint": 0.02,
+    "cal_red_hue": -3.0,
+    "cal_blue_sat": 0.95,
+    "exposure": 0.05,
+    "contrast": -0.06,
+    "highlights": -0.15,
+    "shadows": 0.08,
+    "fade": 0.035,
+    "mixer": {
+      "orange": [
+        -2.0,
+        -0.06,
+        0.03
+      ],
+      "yellow": [
+        -4.0,
+        -0.1,
+        0.02
+      ],
+      "green": [
+        -6.0,
+        -0.15,
+        0.02
+      ]
+    },
+    "grade_highlight": [
+      45.0,
+      0.05
+    ],
+    "grade_shadow": [
+      30.0,
+      0.03
+    ],
+    "saturation": -0.04,
+    "vibrance": 0.05,
+    "grain_amount": 0.025,
+    "grain_size": 1.1,
+    "vignette_amount": 0.08
+  }
+}

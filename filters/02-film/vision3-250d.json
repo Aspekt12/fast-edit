@@ -1,0 +1,21 @@
+{
+  "label": "Vision3 250D",
+  "description": "Cine negative latitude; soft highlights, calm colour.",
+  "settings": {
+    "temperature": 0.03,
+    "tint": 0.01,
+    "exposure": 0.03,
+    "contrast": -0.03,
+    "highlights": -0.18,
+    "shadows": 0.06,
+    "fade": 0.03,
+    "saturation": -0.02,
+    "vibrance": 0.04,
+    "bloom_amount": 0.08,
+    "bloom_radius": 14.0,
+    "bloom_threshold": 0.7,
+    "grain_amount": 0.025,
+    "grain_size": 1.1,
+    "vignette_amount": 0.06
+  }
+}

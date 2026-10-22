@@ -1,0 +1,34 @@
+{
+  "label": "Fuji Superia",
+  "description": "Clean cool greens and slightly cyan skies.",
+  "settings": {
+    "temperature": -0.04,
+    "cal_green_hue": -6.0,
+    "cal_blue_hue": -6.0,
+    "cal_blue_sat": 1.05,
+    "exposure": 0.02,
+    "contrast": 0.04,
+    "mixer": {
+      "green": [
+        -10.0,
+        -0.18,
+        0.06
+      ],
+      "aqua": [
+        8.0,
+        -0.1,
+        0.02
+      ],
+      "blue": [
+        4.0,
+        0.05,
+        -0.03
+      ]
+    },
+    "saturation": -0.02,
+    "vibrance": 0.06,
+    "grain_amount": 0.02,
+    "grain_size": 1.1,
+    "vignette_amount": 0.08
+  }
+}

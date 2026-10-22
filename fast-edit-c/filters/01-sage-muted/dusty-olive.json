@@ -1,0 +1,34 @@
+{
+  "label": "Dusty Olive",
+  "description": "Matte olive drab; muted, understated, military-soft.",
+  "settings": {
+    "temperature": 0.06,
+    "cal_green_hue": -18.0,
+    "cal_blue_sat": 0.94,
+    "exposure": -0.08,
+    "contrast": 0.04,
+    "shadows": 0.05,
+    "fade": 0.05,
+    "mixer": {
+      "green": [
+        -20.0,
+        -0.4,
+        -0.04
+      ],
+      "yellow": [
+        -10.0,
+        -0.22,
+        0.0
+      ]
+    },
+    "grade_shadow": [
+      130.0,
+      0.05
+    ],
+    "saturation": -0.1,
+    "vibrance": 0.03,
+    "grain_amount": 0.03,
+    "grain_size": 1.2,
+    "vignette_amount": 0.14
+  }
+}

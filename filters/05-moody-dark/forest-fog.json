@@ -1,0 +1,44 @@
+{
+  "label": "Forest Fog",
+  "description": "Misty cold forest; breath visible.",
+  "settings": {
+    "temperature": -0.08,
+    "tint": 0.04,
+    "exposure": -0.12,
+    "contrast": -0.04,
+    "highlights": -0.15,
+    "shadows": 0.1,
+    "fade": 0.03,
+    "mixer": {
+      "green": [
+        -8.0,
+        -0.3,
+        0.05
+      ],
+      "aqua": [
+        6.0,
+        -0.2,
+        0.06
+      ],
+      "blue": [
+        0.0,
+        -0.15,
+        0.04
+      ]
+    },
+    "grade_shadow": [
+      175.0,
+      0.08
+    ],
+    "grade_midtone": [
+      150.0,
+      0.03
+    ],
+    "saturation": -0.12,
+    "clarity": -0.05,
+    "dehaze": -0.1,
+    "grain_amount": 0.025,
+    "grain_size": 1.2,
+    "vignette_amount": 0.18
+  }
+}

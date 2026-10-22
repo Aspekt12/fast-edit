@@ -1,0 +1,11 @@
+{
+  "label": "ZX Spectrum",
+  "description": "ZX Spectrum 8-color style",
+  "settings": {
+    "contrast": 0.35,
+    "exposure": 0.12,
+    "saturation": 0.25,
+    "temperature": 0.08,
+    "pixel_size": 4.0
+  }
+}

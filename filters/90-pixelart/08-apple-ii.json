@@ -1,0 +1,11 @@
+{
+  "label": "Apple II",
+  "description": "Apple II high-res monochrome/limited color",
+  "settings": {
+    "contrast": 0.32,
+    "exposure": -0.05,
+    "saturation": -0.9,
+    "temperature": 0.12,
+    "pixel_size": 4.0
+  }
+}

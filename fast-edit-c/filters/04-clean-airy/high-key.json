@@ -1,0 +1,16 @@
+{
+  "label": "High Key",
+  "description": "Airy overexposed softness; light as the subject.",
+  "settings": {
+    "temperature": 0.03,
+    "exposure": 0.35,
+    "contrast": -0.1,
+    "highlights": -0.25,
+    "shadows": 0.15,
+    "fade": 0.03,
+    "saturation": -0.04,
+    "vibrance": 0.04,
+    "grain_amount": 0.012,
+    "grain_size": 1.0
+  }
+}

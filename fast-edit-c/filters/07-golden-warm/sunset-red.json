@@ -1,0 +1,40 @@
+{
+  "label": "Sunset Red",
+  "description": "Hot sky over a calm ground.",
+  "settings": {
+    "temperature": 0.1,
+    "cal_red_hue": 3.0,
+    "contrast": 0.06,
+    "highlights": -0.1,
+    "mixer": {
+      "red": [
+        4.0,
+        0.12,
+        0.05
+      ],
+      "orange": [
+        2.0,
+        0.08,
+        0.03
+      ],
+      "yellow": [
+        -4.0,
+        -0.05,
+        0.0
+      ],
+      "blue": [
+        -4.0,
+        -0.05,
+        -0.08
+      ]
+    },
+    "grade_highlight": [
+      25.0,
+      0.06
+    ],
+    "vibrance": 0.08,
+    "grain_amount": 0.02,
+    "grain_size": 1.1,
+    "vignette_amount": 0.14
+  }
+}

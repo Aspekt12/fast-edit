@@ -1,0 +1,12 @@
+{
+  "label": "Game Boy",
+  "description": "Original Game Boy 4-shade green palette",
+  "settings": {
+    "contrast": 0.25,
+    "exposure": -0.1,
+    "saturation": -0.8,
+    "temperature": 0.15,
+    "tint": -0.05,
+    "pixel_size": 5.0
+  }
+}

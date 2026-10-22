@@ -1,0 +1,37 @@
+{
+  "label": "Mini-DV",
+  "description": "2003 camcorder tape; clean digital, small hours.",
+  "settings": {
+    "temperature": -0.03,
+    "exposure": -0.04,
+    "contrast": 0.07,
+    "highlights": -0.05,
+    "shadows": 0.04,
+    "fade": 0.02,
+    "mixer": {
+      "blue": [
+        -3.0,
+        0.06,
+        0.02
+      ],
+      "aqua": [
+        3.0,
+        0.05,
+        0.0
+      ]
+    },
+    "saturation": -0.03,
+    "clarity": 0.06,
+    "bloom_amount": 0.1,
+    "bloom_radius": 10.0,
+    "bloom_threshold": 0.74,
+    "grain_amount": 0.03,
+    "grain_size": 1.0,
+    "vignette_amount": 0.1
+  },
+  "effects": {
+    "chromatic_aberration": 4.0,
+    "scanlines": 0.07,
+    "vcr_overlay": true
+  }
+}

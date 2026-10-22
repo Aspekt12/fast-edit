@@ -1,0 +1,48 @@
+{
+  "label": "Steel City",
+  "description": "Desaturated cool concrete; urban bones.",
+  "settings": {
+    "temperature": -0.08,
+    "exposure": -0.05,
+    "contrast": 0.1,
+    "highlights": -0.1,
+    "shadows": 0.03,
+    "fade": 0.03,
+    "mixer": {
+      "green": [
+        -4.0,
+        -0.3,
+        0.0
+      ],
+      "yellow": [
+        -4.0,
+        -0.25,
+        0.0
+      ],
+      "blue": [
+        -2.0,
+        -0.2,
+        -0.03
+      ],
+      "orange": [
+        -2.0,
+        -0.15,
+        0.0
+      ],
+      "red": [
+        0.0,
+        -0.12,
+        0.0
+      ]
+    },
+    "grade_shadow": [
+      210.0,
+      0.06
+    ],
+    "saturation": -0.18,
+    "clarity": 0.1,
+    "grain_amount": 0.025,
+    "grain_size": 1.2,
+    "vignette_amount": 0.2
+  }
+}

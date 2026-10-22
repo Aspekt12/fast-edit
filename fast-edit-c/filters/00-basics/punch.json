@@ -1,0 +1,15 @@
+{
+  "label": "Punch",
+  "description": "A little more of everything; nothing moved far.",
+  "settings": {
+    "exposure": 0.04,
+    "contrast": 0.1,
+    "highlights": -0.06,
+    "shadows": 0.04,
+    "saturation": 0.03,
+    "vibrance": 0.06,
+    "clarity": 0.1,
+    "texture": 0.05,
+    "vignette_amount": 0.06
+  }
+}

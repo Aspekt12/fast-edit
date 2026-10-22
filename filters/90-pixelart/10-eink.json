@@ -1,0 +1,12 @@
+{
+  "label": "e-Ink",
+  "description": "E-ink display monochrome look",
+  "settings": {
+    "contrast": 0.45,
+    "exposure": -0.15,
+    "saturation": -1.0,
+    "shadows": 0.2,
+    "highlights": -0.1,
+    "pixel_size": 3.0
+  }
+}

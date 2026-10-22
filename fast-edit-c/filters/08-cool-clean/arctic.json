@@ -1,0 +1,30 @@
+{
+  "label": "Arctic",
+  "description": "Cold clean snow light.",
+  "settings": {
+    "temperature": -0.16,
+    "tint": -0.01,
+    "exposure": 0.1,
+    "contrast": 0.02,
+    "highlights": -0.15,
+    "shadows": 0.06,
+    "fade": 0.015,
+    "mixer": {
+      "blue": [
+        -4.0,
+        -0.05,
+        0.03
+      ],
+      "aqua": [
+        4.0,
+        -0.08,
+        0.04
+      ]
+    },
+    "saturation": -0.04,
+    "clarity": 0.05,
+    "grain_amount": 0.01,
+    "grain_size": 1.0,
+    "vignette_amount": 0.06
+  }
+}

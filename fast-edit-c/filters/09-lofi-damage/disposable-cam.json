@@ -1,0 +1,22 @@
+{
+  "label": "Disposable Cam",
+  "description": "2004 pocket camera; harsh flash energy.",
+  "settings": {
+    "temperature": 0.04,
+    "tint": 0.03,
+    "exposure": 0.08,
+    "contrast": 0.16,
+    "highlights": -0.08,
+    "shadows": 0.06,
+    "fade": 0.02,
+    "saturation": 0.06,
+    "clarity": 0.1,
+    "bloom_amount": 0.15,
+    "bloom_radius": 12.0,
+    "bloom_threshold": 0.72,
+    "grain_amount": 0.055,
+    "grain_size": 1.7,
+    "grain_color": 0.02,
+    "vignette_amount": 0.28
+  }
+}

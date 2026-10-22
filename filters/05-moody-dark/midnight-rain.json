@@ -1,0 +1,36 @@
+{
+  "label": "Midnight Rain",
+  "description": "Blue-grey wet-night melancholy.",
+  "settings": {
+    "temperature": -0.14,
+    "exposure": -0.25,
+    "contrast": 0.05,
+    "highlights": -0.15,
+    "shadows": 0.04,
+    "fade": 0.035,
+    "mixer": {
+      "blue": [
+        -6.0,
+        0.05,
+        -0.05
+      ],
+      "orange": [
+        4.0,
+        0.08,
+        0.04
+      ]
+    },
+    "grade_shadow": [
+      225.0,
+      0.1
+    ],
+    "saturation": -0.06,
+    "clarity": 0.06,
+    "bloom_amount": 0.15,
+    "bloom_radius": 22.0,
+    "bloom_threshold": 0.65,
+    "grain_amount": 0.03,
+    "grain_size": 1.2,
+    "vignette_amount": 0.24
+  }
+}

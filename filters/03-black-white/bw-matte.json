@@ -1,0 +1,13 @@
+{
+  "label": "B&W Matte",
+  "description": "Faded newsprint; lifted blacks, no urgency.",
+  "settings": {
+    "contrast": -0.08,
+    "shadows": 0.06,
+    "fade": 0.09,
+    "saturation": -1.0,
+    "grain_amount": 0.035,
+    "grain_size": 1.4,
+    "vignette_amount": 0.12
+  }
+}

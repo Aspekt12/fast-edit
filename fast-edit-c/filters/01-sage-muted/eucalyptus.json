@@ -1,0 +1,38 @@
+{
+  "label": "Eucalyptus",
+  "description": "Silvery cool grey-green; quiet and clean.",
+  "settings": {
+    "temperature": -0.06,
+    "tint": 0.02,
+    "cal_green_hue": -2.0,
+    "cal_blue_hue": -2.0,
+    "exposure": 0.06,
+    "contrast": -0.04,
+    "fade": 0.025,
+    "mixer": {
+      "green": [
+        -6.0,
+        -0.3,
+        0.12
+      ],
+      "aqua": [
+        4.0,
+        -0.15,
+        0.06
+      ],
+      "blue": [
+        0.0,
+        -0.1,
+        0.03
+      ]
+    },
+    "grade_shadow": [
+      170.0,
+      0.04
+    ],
+    "saturation": -0.06,
+    "grain_amount": 0.015,
+    "grain_size": 1.0,
+    "vignette_amount": 0.06
+  }
+}

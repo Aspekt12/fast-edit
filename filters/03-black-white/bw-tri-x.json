@@ -1,0 +1,14 @@
+{
+  "label": "B&W Tri-X",
+  "description": "Gritty reportage grain; street photography energy.",
+  "settings": {
+    "contrast": 0.12,
+    "shadows": 0.05,
+    "fade": 0.04,
+    "saturation": -1.0,
+    "clarity": 0.08,
+    "grain_amount": 0.1,
+    "grain_size": 1.6,
+    "vignette_amount": 0.15
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "label": "Honey Glaze",
+  "description": "Amber everything, gently.",
+  "settings": {
+    "temperature": 0.18,
+    "exposure": 0.05,
+    "contrast": -0.04,
+    "fade": 0.03,
+    "mixer": {
+      "green": [
+        -10.0,
+        -0.25,
+        0.02
+      ],
+      "yellow": [
+        -6.0,
+        -0.1,
+        0.05
+      ]
+    },
+    "grade_highlight": [
+      36.0,
+      0.08
+    ],
+    "grade_midtone": [
+      30.0,
+      0.04
+    ],
+    "saturation": -0.06,
+    "grain_amount": 0.02,
+    "grain_size": 1.1,
+    "vignette_amount": 0.12
+  }
+}

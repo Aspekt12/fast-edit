@@ -1,0 +1,22 @@
+{
+  "label": "Platinum Print",
+  "description": "Platinum tonality; paper-white highs, endless midtones.",
+  "settings": {
+    "contrast": -0.05,
+    "highlights": -0.12,
+    "shadows": 0.1,
+    "fade": 0.06,
+    "saturation": -1.0,
+    "grade_highlight": [
+      42.0,
+      0.05
+    ],
+    "grade_shadow": [
+      38.0,
+      0.04
+    ],
+    "grain_amount": 0.015,
+    "grain_size": 1.1,
+    "vignette_amount": 0.1
+  }
+}

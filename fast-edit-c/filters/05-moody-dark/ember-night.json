@@ -1,0 +1,49 @@
+{
+  "label": "Ember Night",
+  "description": "Dark frame with warm firelight pops.",
+  "settings": {
+    "temperature": -0.05,
+    "exposure": -0.35,
+    "contrast": 0.14,
+    "highlights": -0.05,
+    "fade": 0.03,
+    "mixer": {
+      "orange": [
+        4.0,
+        0.15,
+        0.1
+      ],
+      "yellow": [
+        4.0,
+        0.1,
+        0.05
+      ],
+      "red": [
+        2.0,
+        0.1,
+        0.0
+      ],
+      "blue": [
+        -6.0,
+        -0.15,
+        -0.1
+      ]
+    },
+    "grade_shadow": [
+      250.0,
+      0.08
+    ],
+    "grade_highlight": [
+      35.0,
+      0.06
+    ],
+    "saturation": -0.02,
+    "vibrance": 0.1,
+    "bloom_amount": 0.25,
+    "bloom_radius": 26.0,
+    "bloom_threshold": 0.6,
+    "grain_amount": 0.03,
+    "grain_size": 1.2,
+    "vignette_amount": 0.28
+  }
+}

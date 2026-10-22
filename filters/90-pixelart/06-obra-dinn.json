@@ -1,0 +1,14 @@
+{
+  "label": "Return of Obra Dinn",
+  "description": "1-bit/2-bit dithering style of Obra Dinn",
+  "settings": {
+    "contrast": 0.5,
+    "exposure": -0.05,
+    "saturation": -1.0,
+    "shadows": -0.2,
+    "highlights": 0.2,
+    "grain_amount": 0.02,
+    "grain_size": 0.8,
+    "pixel_size": 4.0
+  }
+}

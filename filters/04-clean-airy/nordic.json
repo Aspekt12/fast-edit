@@ -1,0 +1,29 @@
+{
+  "label": "Nordic",
+  "description": "Bright cool minimalism; almost no colour pressure.",
+  "settings": {
+    "temperature": -0.05,
+    "tint": -0.02,
+    "exposure": 0.18,
+    "contrast": -0.04,
+    "highlights": -0.18,
+    "shadows": 0.1,
+    "fade": 0.015,
+    "mixer": {
+      "blue": [
+        2.0,
+        -0.1,
+        0.04
+      ],
+      "yellow": [
+        -2.0,
+        -0.05,
+        0.0
+      ]
+    },
+    "saturation": -0.05,
+    "clarity": 0.04,
+    "grain_amount": 0.01,
+    "grain_size": 1.0
+  }
+}
