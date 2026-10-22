@@ -49,7 +49,8 @@ OPENCV_LIBS   := $(shell $(PKG_CONFIG_ENV) pkg-config --libs opencv4 2>/dev/null
 
 SRC := src/fe_defs.c src/fe_math.c src/fe_pipeline.c src/fe_filters.c \
        src/fe_overlay.c src/fe_io.c src/fe_app.c src/main.c src/stb_impl.c \
-       src/fe_optimize.c src/fe_vision.c src/fe_project.c src/fe_lens.c src/fe_lens_auto.c
+       src/fe_optimize.c src/fe_vision.c src/fe_project.c src/fe_lens.c src/fe_lens_auto.c \
+       src/fe_state.c src/fe_fields.c
 VENDOR := vendor/cJSON.c
 
 ifeq ($(HAVE_GTK),1)

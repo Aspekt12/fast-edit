@@ -15,6 +15,14 @@ int fe_load_image(const char *path, int max_edge, FeImage *out,
 int fe_save_png(const char *path, const unsigned char *rgb, int w, int h);
 int fe_save_jpg(const char *path, const unsigned char *rgb, int w, int h, int quality);
 
+/* Decode a fast 8-bit RGB preview for the browser.  For a RAW file this
+   pulls the camera's embedded JPEG thumbnail out of the file — a few
+   milliseconds instead of a full demosaic pass, which is what makes a
+   film-strip of previews possible.  Returns 1 on success; *rgb is a
+   malloc'd buffer (free it with free()) and *w and *h are its size. */
+int fe_load_thumb_rgb(const char *path, int max_edge,
+                      unsigned char **rgb, int *w, int *h);
+
 /* 16-bit PPM (netpbm P6, big endian) — for lossless comparisons. */
 int fe_save_ppm16(const char *path, const unsigned short *rgb, int w, int h);
 

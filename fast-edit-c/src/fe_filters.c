@@ -1,3 +1,4 @@
+#include "fe_fields.h"
 #include "fe_filters.h"
 
 #include <ctype.h>
@@ -58,50 +59,23 @@ static char *fe_category_default_label(const char *dir) {
 /* settings parsing                                                     */
 /* ------------------------------------------------------------------ */
 
-/* kind 0 = plain double, 1 = (hue, strength) pair, 2 = mixer object */
+/* Plain doubles all have a name in fe_fields.c; this table only holds the
+   two shapes that a plain double cannot express:
+
+     kind 1 = a (hue, strength) pair written as a 2-element JSON array
+     kind 2 = the colour mixer, an object of per-band [hue, sat, lum] */
+
 typedef struct {
     const char *name;
     size_t offset;
     int kind;
 } FeSettingRef;
 
-#define FIELD(name) offsetof(FeSettings, name)
-
 static const FeSettingRef SETTING_TABLE[] = {
-    {"temperature", FIELD(temperature), 0},
-    {"tint", FIELD(tint), 0},
-    {"cal_red_hue", FIELD(cal_red_hue), 0},
-    {"cal_green_hue", FIELD(cal_green_hue), 0},
-    {"cal_blue_hue", FIELD(cal_blue_hue), 0},
-    {"cal_red_sat", FIELD(cal_red_sat), 0},
-    {"cal_green_sat", FIELD(cal_green_sat), 0},
-    {"cal_blue_sat", FIELD(cal_blue_sat), 0},
-    {"exposure", FIELD(exposure), 0},
-    {"contrast", FIELD(contrast), 0},
-    {"highlights", FIELD(highlights), 0},
-    {"shadows", FIELD(shadows), 0},
-    {"blacks", FIELD(blacks), 0},
-    {"whites", FIELD(whites), 0},
-    {"fade", FIELD(fade), 0},
-    {"mixer", 0, 2},
-    {"grade_shadow", FIELD(grade_shadow_h), 1},
-    {"grade_midtone", FIELD(grade_midtone_h), 1},
-    {"grade_highlight", FIELD(grade_highlight_h), 1},
-    {"grade_blending", FIELD(grade_blending), 0},
-    {"saturation", FIELD(saturation), 0},
-    {"vibrance", FIELD(vibrance), 0},
-    {"texture", FIELD(texture), 0},
-    {"clarity", FIELD(clarity), 0},
-    {"dehaze", FIELD(dehaze), 0},
-    {"grain_amount", FIELD(grain_amount), 0},
-    {"grain_size", FIELD(grain_size), 0},
-    {"grain_color", FIELD(grain_color), 0},
-    {"grain_bias", FIELD(grain_bias), 0},
-    {"vignette_amount", FIELD(vignette_amount), 0},
-    {"bloom_amount", FIELD(bloom_amount), 0},
-    {"bloom_radius", FIELD(bloom_radius), 0},
-    {"bloom_threshold", FIELD(bloom_threshold), 0},
-    {"pixel_size", FIELD(pixel_size), 0},
+    {"grade_shadow",    offsetof(FeSettings, grade_shadow_h),    1},
+    {"grade_midtone",   offsetof(FeSettings, grade_midtone_h),   1},
+    {"grade_highlight", offsetof(FeSettings, grade_highlight_h), 1},
+    {"mixer",           0,                                       2},
 };
 static const int SETTING_COUNT = (int)(sizeof(SETTING_TABLE) / sizeof(SETTING_TABLE[0]));
 
@@ -120,27 +94,33 @@ static char *fe_parse_settings(const cJSON *obj, FeSettings *out) {
     cJSON_ArrayForEach(item, obj) {
         const char *key = item->string;
         if (!key) continue;
-        int found = -1;
+
+        /* the structured shapes first */
+        const FeSettingRef *ref = NULL;
         for (int i = 0; i < SETTING_COUNT; i++) {
-            if (strcmp(SETTING_TABLE[i].name, key) == 0) { found = i; break; }
+            if (strcmp(SETTING_TABLE[i].name, key) == 0) { ref = &SETTING_TABLE[i]; break; }
         }
-        if (found < 0) {
-            /* Unknown keys are a hard error: silently ignoring a typo like
-               "exposre" would produce a look nobody can reproduce. */
-            char *msg = (char *)malloc(256);
-            snprintf(msg, 256, "unknown setting: %s", key);
-            return msg;
-        }
-        const FeSettingRef *ref = &SETTING_TABLE[found];
-        if (ref->kind == 0) {
+
+        if (!ref) {
+            /* everything else is a plain double, looked up by name */
+            ptrdiff_t offset = fe_settings_field_offset(key);
+            if (offset < 0) {
+                /* Unknown keys are a hard error: silently ignoring a typo like
+                   "exposre" would produce a look nobody can reproduce. */
+                char *msg = (char *)malloc(256);
+                snprintf(msg, 256, "unknown setting: %s", key);
+                return msg;
+            }
             if (!cJSON_IsNumber(item)) {
                 char *msg = (char *)malloc(256);
                 snprintf(msg, 256, "%s must be a number", key);
                 return msg;
             }
-            double v = cJSON_GetNumberValue(item);
-            *(double *)((char *)out + ref->offset) = v;
-        } else if (ref->kind == 1) {
+            *(double *)((char *)out + offset) = cJSON_GetNumberValue(item);
+            continue;
+        }
+
+        if (ref->kind == 1) {
             if (!cJSON_IsArray(item) || cJSON_GetArraySize(item) < 2) {
                 char *msg = (char *)malloc(256);
                 snprintf(msg, 256, "%s must be [hue, strength]", key);
@@ -346,8 +326,9 @@ int fe_filters_load(const char *root, FeFilterSet *out) {
         }
 
         if (cat->count > 0) out->count++;
-        else { /* empty category: keep the slot but do not count it */
+        else { /* empty category: release the slot so it can be reused */
             free(cat->dir); free(cat->label); free(cat->colour); free(cat->filters);
+            cat->dir = NULL; cat->label = NULL; cat->colour = NULL; cat->filters = NULL;
         }
         free(dirs[i]);
     }

@@ -1,4 +1,8 @@
+/* The Makefile already passes -D_GNU_SOURCE; only define it when building
+   without it so the two never clash. */
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include "fe_lens.h"
 #include "fe_math.h"
 
@@ -20,32 +24,6 @@ typedef struct {
 
 static inline float fe_luma_px(const float *p) {
     return 0.2126f * p[0] + 0.7152f * p[1] + 0.0722f * p[2];
-}
-
-/* Simple box blur for smoothing */
-static void box_blur_small(const FeImage *src, FeImage *dst, int radius) {
-    int w = src->w, h = src->h;
-    *dst = fe_img_new(w, h);
-    float *s = src->data;
-    float *d = dst->data;
-    for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
-            float sum[3] = {0,0,0};
-            int cnt = 0;
-            for (int dy = -radius; dy <= radius; dy++) {
-                for (int dx = -radius; dx <= radius; dx++) {
-                    int sx = x + dx, sy = y + dy;
-                    if (sx < 0 || sx >= w || sy < 0 || sy >= h) continue;
-                    const float *p = s + ((size_t)sy * w + sx) * 3;
-                    sum[0] += p[0]; sum[1] += p[1]; sum[2] += p[2];
-                    cnt++;
-                }
-            }
-            float *outp = d + ((size_t)y * w + x) * 3;
-            if (cnt > 0) { outp[0]=sum[0]/cnt; outp[1]=sum[1]/cnt; outp[2]=sum[2]/cnt; }
-            else { outp[0]=outp[1]=outp[2]=0; }
-        }
-    }
 }
 
 /* Estimate vignetting from radial luminance profile */

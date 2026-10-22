@@ -12,33 +12,81 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+/* Join "dir/name" into out, refusing (returning 0) when it would not fit.
+   Done by hand rather than with snprintf so the compiler can prove the
+   result never overflows and stays quiet about it. */
+static int fe_path_join(char *out, size_t out_len, const char *dir, const char *name) {
+    size_t dl = strlen(dir), nl = strlen(name);
+    if (dl + 1 + nl + 1 > out_len) return 0;
+    memcpy(out, dir, dl);
+    out[dl] = '/';
+    memcpy(out + dl + 1, name, nl + 1);
+    return 1;
+}
+
+/* A folder qualifies as a filters root when it holds at least one
+   subfolder (each subfolder is a category). */
+static int fe_is_filters_root(const char *dir) {
+    DIR *d = opendir(dir);
+    if (!d) return 0;
+    struct dirent *ent;
+    int ok = 0;
+    while ((ent = readdir(d)) != NULL) {
+        if (ent->d_name[0] == '.') continue;
+        char sub[FE_PATH_MAX];
+        if (!fe_path_join(sub, sizeof(sub), dir, ent->d_name)) continue;
+        struct stat st;
+        if (stat(sub, &st) == 0 && S_ISDIR(st.st_mode)) { ok = 1; break; }
+    }
+    closedir(d);
+    return ok;
+}
+
+/* Where does this binary live?  Used to find the filter folder no matter
+   which directory the user launched the editor from. */
+static void fe_exe_dir(char *out, size_t out_len) {
+    out[0] = '\0';
+    ssize_t n = readlink("/proc/self/exe", out, out_len - 1);
+    if (n <= 0) { out[0] = '\0'; return; }
+    out[n] = '\0';
+    char *slash = strrchr(out, '/');
+    if (slash) *slash = '\0';   /* keep the directory, drop the binary name */
+    else out[0] = '\0';
+}
+
+/* Find the folder that holds the filter presets.
+
+   The presets live in ONE place — <repo>/filters — and the Python editor
+   (fast-edit-v2.py) reaches them through
+   Path(__file__).resolve().parent / "filters".  The C editor lives one
+   level down in fast-edit-c/, so it looks for the same folder relative to
+   its own binary first (build/../../filters), and only then falls back to
+   the working directory.  That way "make run", "./build/fast-edit" from the
+   repository root and a double-clicked binary all find the SAME presets. */
 void fe_app_find_filters_root(char *out, size_t out_len) {
     const char *env = getenv("FE_FILTERS");
-    const char *candidates[3] = {NULL, "filters", "../filters"};
     if (env && *env) {
         snprintf(out, out_len, "%s", env);
         return;
     }
-    for (int i = 0; i < 3; i++) {
-        if (!candidates[i]) continue;
-        char probe[FE_PATH_MAX];
-        snprintf(probe, sizeof(probe), "%s/category.json", candidates[i]);
-        /* a folder qualifies when it holds at least one subfolder */
-        char dir[FE_PATH_MAX];
-        snprintf(dir, sizeof(dir), "%s", candidates[i]);
-        DIR *d = opendir(dir);
-        if (!d) continue;
-        struct dirent *ent;
-        int ok = 0;
-        while ((ent = readdir(d)) != NULL) {
-            if (ent->d_name[0] == '.') continue;
-            char sub[FE_PATH_MAX];
-            snprintf(sub, sizeof(sub), "%s/%s", dir, ent->d_name);
-            struct stat st;
-            if (stat(sub, &st) == 0 && S_ISDIR(st.st_mode)) { ok = 1; break; }
-        }
-        closedir(d);
-        if (ok) {
+
+    char candidates[8][FE_PATH_MAX];
+    int n = 0;
+
+    /* 1. relative to the running binary */
+    char exedir[FE_PATH_MAX];
+    fe_exe_dir(exedir, sizeof(exedir));
+    if (exedir[0]) {
+        snprintf(candidates[n++], FE_PATH_MAX, "%s/../../filters", exedir);
+        snprintf(candidates[n++], FE_PATH_MAX, "%s/../filters", exedir);
+    }
+
+    /* 2. relative to the working directory */
+    snprintf(candidates[n++], FE_PATH_MAX, "filters");
+    snprintf(candidates[n++], FE_PATH_MAX, "../filters");
+
+    for (int i = 0; i < n; i++) {
+        if (fe_is_filters_root(candidates[i])) {
             snprintf(out, out_len, "%s", candidates[i]);
             return;
         }

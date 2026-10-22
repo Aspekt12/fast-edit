@@ -12,10 +12,12 @@
    ============================================================================= */
 
 #include "fe_app.h"
+#include "fe_fields.h"
 #include "fe_io.h"
 #include "fe_math.h"
 #include "fe_overlay.h"
 #include "fe_pipeline.h"
+#include "fe_state.h"
 
 #include "../vendor/stb_image_write.h"
 
@@ -221,6 +223,102 @@ static int selftest_grain(void) {
     return ok;
 }
 
+/* ---- the per-image sidecar ------------------------------------------- */
+
+/* Everything the editor promises about "<photo>.fastedit.json": the preset
+   and every slider delta survive a save/load round trip bit-for-bit, a
+   photo with no sidecar loads as "nothing remembered", and the write is
+   atomic (no .tmp left behind).  This is the promise that makes edits
+   travel with the picture, so it is worth a hard check. */
+static int selftest_state(void) {
+    const char *img = "/tmp/fe-selftest-photo.ARW";
+    char side[512], tmp[600];
+    snprintf(side, sizeof(side), "%s.fastedit.json", img);
+    snprintf(tmp, sizeof(tmp), "%s.tmp", side);
+    remove(side);
+    remove(tmp);
+
+    int ok = 1;
+    FeEditState st;
+    memset(&st, 0, sizeof(st));
+
+    /* a photo that has never been edited must load as "nothing" */
+    if (fe_state_load(img, &st) != 0) { ok = 0; printf("  a missing sidecar must load as 0\n"); }
+
+    /* a preset with no tweaks: only the filter key travels */
+    memset(&st, 0, sizeof(st));
+    snprintf(st.filter_key, sizeof(st.filter_key), "02-film/portra-400");
+    if (!fe_state_save(img, &st)) { ok = 0; printf("  could not write the sidecar\n"); }
+
+    FeEditState got;
+    memset(&got, 0, sizeof(got));
+    if (!fe_state_load(img, &got) || strcmp(got.filter_key, "02-film/portra-400") != 0 ||
+        got.nfields != 0) {
+        ok = 0;
+        printf("  the empty-offset sidecar did not round-trip\n");
+    }
+
+    /* now with deltas — note the negative, the exact float, and a value that
+       sits on a slider's floor */
+    fe_state_set(&st, "exposure", -0.245);
+    fe_state_set(&st, "contrast", 0.005);
+    fe_state_set(&st, "grain_amount", -0.05);   /* the grain slider's floor */
+    fe_state_set(&st, "pixel_size", 5.0);
+    fe_state_set(&st, "lens_distortion", 0.3125);
+    if (!fe_state_save(img, &st)) { ok = 0; printf("  could not write the sidecar\n"); }
+
+    memset(&got, 0, sizeof(got));
+    if (!fe_state_load(img, &got)) {
+        ok = 0; printf("  could not read the sidecar back\n");
+    } else {
+        if (strcmp(got.filter_key, st.filter_key) != 0) { ok = 0; printf("  filter key changed\n"); }
+        if (got.nfields != st.nfields) { ok = 0; printf("  %d fields written, %d read back\n",
+                                                        st.nfields, got.nfields); }
+        for (int i = 0; i < st.nfields; i++) {
+            double v = 0;
+            if (!fe_state_get(&got, st.fields[i].name, &v) || v != st.fields[i].value) {
+                ok = 0;
+                printf("  %s came back wrong\n", st.fields[i].name);
+            }
+        }
+    }
+
+    /* overwriting must drop the fields that went back to rest */
+    fe_state_set(&st, "exposure", 0.0);
+    if (!fe_state_save(img, &st)) { ok = 0; printf("  could not rewrite the sidecar\n"); }
+    memset(&got, 0, sizeof(got));
+    if (fe_state_load(img, &got)) {
+        double v = 0;
+        if (fe_state_get(&got, "exposure", &v)) { ok = 0; printf("  a rested field was kept\n"); }
+    } else { ok = 0; printf("  the rewrite did not load\n"); }
+
+    /* the write is atomic: nothing half-written is left lying around */
+    if (fopen(tmp, "r")) { ok = 0; printf("  a .tmp file survived the save\n"); remove(tmp); }
+
+    /* the field names the two JSON formats share must resolve, and made-up
+       ones must be refused rather than silently ignored */
+    if (fe_settings_field_offset("exposure") < 0 ||
+        fe_settings_field_offset("lens_distortion") < 0 ||
+        fe_settings_field_offset("pixel_size") < 0) {
+        ok = 0; printf("  a real setting name did not resolve\n");
+    }
+    if (fe_settings_field_offset("exposre") >= 0 ||
+        fe_settings_field_offset("") >= 0 ||
+        fe_settings_field_offset(NULL) >= 0) {
+        ok = 0; printf("  an unknown setting name resolved\n");
+    }
+    /* distinct names must land in distinct places, or two sliders would
+       silently share one number */
+    if (fe_settings_field_offset("temperature") == fe_settings_field_offset("tint")) {
+        ok = 0; printf("  two settings share an offset\n");
+    }
+
+    remove(side);
+    printf("sidecar round trip: %d adjustments, filter key preserved, atomic write %s\n",
+           st.nfields, ok ? "OK" : "FAIL");
+    return ok;
+}
+
 int main(int argc, char **argv) {
     if (argc > 1 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) {
         usage(argv[0]);
@@ -282,6 +380,7 @@ int main(int argc, char **argv) {
         fails += selftest_tone(nargs > 0 ? args[0] : NULL);
         fails += !selftest_exposure();
         fails += !selftest_grain();
+        fails += !selftest_state();
         printf(fails ? "\nSELFTEST FAILED (%d)\n" : "\nSELFTEST PASSED\n", fails);
         fe_app_free(&app);
         return fails ? 1 : 0;

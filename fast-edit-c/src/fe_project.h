@@ -32,6 +32,7 @@ typedef struct {
     char *export_format; /* "png", "jpg" */
     int export_quality;  /* for jpg */
     int use_dither;
+    int fullres;         /* 1 = re-decode each source at full resolution */
     char *active_filter_key;
 } FeProject;
 

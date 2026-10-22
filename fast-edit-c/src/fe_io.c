@@ -254,6 +254,102 @@ int fe_load_image(const char *path, int max_edge, FeImage *out,
     return 1;
 }
 
+/* ------------------------------------------------------------------ */
+/* fast thumbnails for the browser                                     */
+/* ------------------------------------------------------------------ */
+
+/* A RAW file's full development pass (demosaic, colour, ...) takes
+   hundreds of milliseconds — far too slow to fill a film-strip of
+   previews.  Every camera also stores a ready-made JPEG inside the file,
+   so the browser reads that instead: a few milliseconds per photo and a
+   perfectly recognisable picture.
+
+   Returns 1 on success; *rgb is malloc'd 8-bit RGB and belongs to the
+   caller.  `max_edge` > 0 downscales the long edge of the result. */
+int fe_load_thumb_rgb(const char *path, int max_edge,
+                      unsigned char **rgb, int *w, int *h) {
+    if (rgb) *rgb = NULL;
+    if (w) *w = 0;
+    if (h) *h = 0;
+    if (!path || !path[0]) return 0;
+
+    int is_raw = 0;
+    const char *ext = strrchr(path, '.');
+    if (ext && (strcasecmp(ext, ".arw") == 0 || strcasecmp(ext, ".raw") == 0 ||
+                strcasecmp(ext, ".cr2") == 0 || strcasecmp(ext, ".nef") == 0 ||
+                strcasecmp(ext, ".dng") == 0 || strcasecmp(ext, ".raf") == 0))
+        is_raw = 1;
+
+    unsigned char *decoded = NULL;
+    int dw = 0, dh = 0;
+
+#ifdef FE_HAVE_LIBRAW
+    if (is_raw) {
+        /* Ask LibRaw for the thumbnail only — never for a demosaic pass. */
+        libraw_data_t *raw = libraw_init(0);
+        libraw_processed_image_t *thumb = NULL;
+        if (raw && libraw_open_file(raw, path) == LIBRAW_SUCCESS &&
+            libraw_unpack_thumb(raw) == LIBRAW_SUCCESS) {
+            int errc = 0;
+            thumb = libraw_dcraw_make_mem_thumb(raw, &errc);
+        }
+        if (raw) libraw_close(raw);
+
+        if (!thumb) return 0;
+        if (thumb->type != LIBRAW_IMAGE_JPEG || thumb->data_size == 0) {
+            libraw_dcraw_clear_mem(thumb);
+            return 0;
+        }
+        /* stb copies the pixels out of LibRaw's buffer */
+        decoded = stbi_load_from_memory(thumb->data, (int)thumb->data_size,
+                                        &dw, &dh, NULL, 3);
+        libraw_dcraw_clear_mem(thumb);
+    } else {
+        decoded = (unsigned char *)stbi_load(path, &dw, &dh, NULL, 3);
+    }
+#else
+    /* Without LibRaw a RAW thumbnail would need a full decode, which is
+       exactly what this function exists to avoid — so refuse instead. */
+    if (is_raw) return 0;
+    decoded = (unsigned char *)stbi_load(path, &dw, &dh, NULL, 3);
+#endif
+
+    if (!decoded) return 0;
+    if (dw <= 0 || dh <= 0) { stbi_image_free(decoded); return 0; }
+
+    /* downscale in place when the caller asked for something small */
+    if (max_edge > 0 && (dw > max_edge || dh > max_edge)) {
+        double s = (double)max_edge / (dw > dh ? dw : dh);
+        int nw = (int)(dw * s + 0.5);
+        int nh = (int)(dh * s + 0.5);
+        if (nw < 1) nw = 1;
+        if (nh < 1) nh = 1;
+        unsigned char *small = (unsigned char *)malloc((size_t)nw * nh * 3);
+        if (small) {
+            for (int y = 0; y < nh; y++) {
+                int sy = (int)((double)y * dh / nh);
+                if (sy >= dh) sy = dh - 1;
+                for (int x = 0; x < nw; x++) {
+                    int sx = (int)((double)x * dw / nw);
+                    if (sx >= dw) sx = dw - 1;
+                    const unsigned char *s = decoded + ((size_t)sy * dw + sx) * 3;
+                    unsigned char *d = small + ((size_t)y * nw + x) * 3;
+                    d[0] = s[0]; d[1] = s[1]; d[2] = s[2];
+                }
+            }
+            stbi_image_free(decoded);
+            decoded = small;
+            dw = nw;
+            dh = nh;
+        }
+    }
+
+    *rgb = decoded;
+    if (w) *w = dw;
+    if (h) *h = dh;
+    return 1;
+}
+
 int fe_save_png(const char *path, const unsigned char *rgb, int w, int h) {
     if (!stbi_write_png(path, w, h, 3, rgb, w * 3)) {
         fprintf(stderr, "cannot write %s\n", path);
