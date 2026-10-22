@@ -1,0 +1,9 @@
+# Build outputs.  `make` in fast-edit-c/ recreates all of these; keeping the
+# binaries and .o files out of git keeps diffs readable and avoids a binary
+# churn commit on every rebuild.
+fast-edit-c/build/
+
+# Editor / OS noise
+*.swp
+*~
+.DS_Store
