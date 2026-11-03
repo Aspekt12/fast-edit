@@ -17,6 +17,7 @@
 #include "fe_math.h"
 #include "fe_overlay.h"
 #include "fe_pipeline.h"
+#include "fe_project.h"
 #include "fe_state.h"
 
 #include "../vendor/stb_image_write.h"
@@ -319,6 +320,76 @@ static int selftest_state(void) {
     return ok;
 }
 
+static int selftest_project(FeApp *app) {
+    const char *img1 = "/tmp/fe-selftest-proj1.png";
+    const char *img2 = "/tmp/fe-selftest-proj2.png";
+    const char *proj_file = "/tmp/fe-selftest.feproj";
+    char side1[512], side2[512];
+    fe_state_path(img1, side1, sizeof(side1));
+    fe_state_path(img2, side2, sizeof(side2));
+    remove(side1); remove(side2); remove(proj_file);
+
+    /* Create two tiny test images */
+    unsigned char buf[16 * 16 * 3];
+    for (int i = 0; i < 16 * 16 * 3; i++) buf[i] = 128;
+    fe_save_png(img1, buf, 16, 16);
+    fe_save_png(img2, buf, 16, 16);
+
+    int ok = 1;
+    FeProject *proj = fe_project_new();
+    fe_project_add(proj, img1);
+    fe_project_add(proj, img2);
+    if (proj->count != 2) { ok = 0; printf("  project count expected 2, got %d\n", proj->count); }
+
+    /* Photo 1 gets its own custom exposure offset + filter */
+    FeEditState st1;
+    memset(&st1, 0, sizeof(st1));
+    snprintf(st1.filter_key, sizeof(st1.filter_key), "01-sage-muted/light-sage");
+    fe_state_set(&st1, "exposure", 0.45);
+    fe_state_save(img1, &st1);
+
+    /* Apply a new filter to selected photos: Photo 1 must keep its exposure offset */
+    fe_project_apply_filter(proj, app, "02-film/portra-400");
+    FeEditState check1;
+    memset(&check1, 0, sizeof(check1));
+    double exp_val = 0.0;
+    if (!fe_state_load(img1, &check1) ||
+        strcmp(check1.filter_key, "02-film/portra-400") != 0 ||
+        !fe_state_get(&check1, "exposure", &exp_val) ||
+        fabs(exp_val - 0.45) > 1e-6) {
+        ok = 0;
+        printf("  fe_project_apply_filter did not preserve individual slider offset\n");
+    }
+
+    /* Save project, delete sidecars, reload project -> sidecar must be restored from project */
+    if (!fe_project_save(proj, proj_file)) {
+        ok = 0;
+        printf("  fe_project_save failed\n");
+    }
+    fe_state_remove(img1);
+    FeProject *proj2 = fe_project_new();
+    if (!fe_project_load(proj2, proj_file) || proj2->count != 2) {
+        ok = 0;
+        printf("  fe_project_load failed\n");
+    }
+    memset(&check1, 0, sizeof(check1));
+    exp_val = 0.0;
+    if (!fe_state_load(img1, &check1) ||
+        strcmp(check1.filter_key, "02-film/portra-400") != 0 ||
+        !fe_state_get(&check1, "exposure", &exp_val) ||
+        fabs(exp_val - 0.45) > 1e-6) {
+        ok = 0;
+        printf("  fe_project_load did not restore embedded per-photo state\n");
+    }
+
+    fe_project_free(proj);
+    fe_project_free(proj2);
+    remove(side1); remove(side2); remove(img1); remove(img2); remove(proj_file);
+    printf("project round trip: per-photo edits preserved, .feproj save/load %s\n",
+           ok ? "OK" : "FAIL");
+    return ok;
+}
+
 int main(int argc, char **argv) {
     if (argc > 1 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) {
         usage(argv[0]);
@@ -381,6 +452,7 @@ int main(int argc, char **argv) {
         fails += !selftest_exposure();
         fails += !selftest_grain();
         fails += !selftest_state();
+        fails += !selftest_project(&app);
         printf(fails ? "\nSELFTEST FAILED (%d)\n" : "\nSELFTEST PASSED\n", fails);
         fe_app_free(&app);
         return fails ? 1 : 0;

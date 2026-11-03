@@ -3,7 +3,11 @@
 # churn commit on every rebuild.
 fast-edit-c/build/
 
-# Editor / OS noise
+# Editor / OS / Python noise
 *.swp
 *~
 .DS_Store
+__pycache__/
+*.pyc
+.venv/
+

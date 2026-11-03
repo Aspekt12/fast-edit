@@ -1,5 +1,6 @@
 #include "fe_state.h"
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +20,14 @@ void fe_state_path(const char *image_path, char *out, size_t out_len) {
     snprintf(out, out_len, "%s.fastedit.json", image_path);
 }
 
+int fe_state_remove(const char *image_path) {
+    if (!image_path || !image_path[0]) return 0;
+    char path[4096];
+    fe_state_path(image_path, path, sizeof(path));
+    remove(path);
+    return 1;
+}
+
 /* ------------------------------------------------------------------ */
 /* the field list                                                      */
 /* ------------------------------------------------------------------ */
@@ -36,10 +45,18 @@ int fe_state_get(const FeEditState *st, const char *name, double *out) {
 void fe_state_set(FeEditState *st, const char *name, double value) {
     for (int i = 0; i < st->nfields; i++) {
         if (strcmp(st->fields[i].name, name) == 0) {
-            st->fields[i].value = value;
+            if (fabs(value) < 1e-9) {
+                /* Slider returned to rest: remove it from the list. */
+                for (int j = i; j < st->nfields - 1; j++)
+                    st->fields[j] = st->fields[j + 1];
+                st->nfields--;
+            } else {
+                st->fields[i].value = value;
+            }
             return;
         }
     }
+    if (fabs(value) < 1e-9) return;
     if (st->nfields >= FE_STATE_MAX_FIELDS) return;
     snprintf(st->fields[st->nfields].name, FE_STATE_NAME_MAX, "%s", name);
     st->fields[st->nfields].value = value;
@@ -160,7 +177,7 @@ int fe_state_load(const char *image_path, FeEditState *st) {
             if (strcmp(item->string, "version") == 0) continue;
             fe_state_set(&tmp, item->string, item->valuedouble);
         }
-        ok = (tmp.nfields > 0);
+        ok = (tmp.nfields > 0 || tmp.filter_key[0] != '\0');
     }
 
     cJSON_Delete(root);

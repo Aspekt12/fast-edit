@@ -59,6 +59,9 @@ int fe_state_load(const char *image_path, FeEditState *st);
 /* Write the state of `image_path`.  Returns 1 on success. */
 int fe_state_save(const char *image_path, const FeEditState *st);
 
+/* Remove the sidecar of `image_path` (if any).  Returns 1 if removed or not present. */
+int fe_state_remove(const char *image_path);
+
 /* Small helpers for the field list. */
 int fe_state_get(const FeEditState *st, const char *name, double *out);
 void fe_state_set(FeEditState *st, const char *name, double value);

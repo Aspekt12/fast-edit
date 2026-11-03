@@ -3,6 +3,7 @@
 
 #include "fe_defs.h"
 #include "fe_app.h"
+#include "fe_state.h"
 
 #include <stddef.h>
 
@@ -39,9 +40,15 @@ typedef struct {
 FeProject *fe_project_new(void);
 void fe_project_free(FeProject *proj);
 
+/* Supported image file extension check (RAW/ARW + standard images) */
+int fe_is_supported_image_file(const char *name);
+int fe_is_raw_image_file(const char *name);
+
 /* Add images to project */
 int fe_project_add(FeProject *proj, const char *path);
 int fe_project_add_many(FeProject *proj, const char **paths, int count);
+int fe_project_add_folder(FeProject *proj, const char *folder_path);
+int fe_project_find(const FeProject *proj, const char *path);
 
 /* Selection */
 void fe_project_select_all(FeProject *proj, int selected);
@@ -56,15 +63,21 @@ void fe_project_clear(FeProject *proj);
 /* Generate thumbnails (multi-threaded) */
 int fe_project_generate_thumbnails(FeProject *proj, int thumb_size);
 
-/* Mass apply: apply filter to all selected items */
+/* Mass apply: apply filter to all selected items (preserving each photo's slider offsets) */
 int fe_project_apply_filter(FeProject *proj, FeApp *app, const char *filter_key);
+
+/* Mass sync: copy full edit state (filter + slider offsets) to all selected items */
+int fe_project_sync_state(FeProject *proj, FeApp *app, const FeEditState *src_state);
+
+/* Reset edits on all selected items (removes their sidecars) */
+int fe_project_reset_selected(FeProject *proj);
 
 /* Mass export with multi-threading, no quality loss */
 typedef void (*FeProjectProgressFn)(int done, int total, const char *current_file, void *user);
 int fe_project_export(FeProject *proj, FeApp *app, const char *filter_key,
                       FeProjectProgressFn progress, void *user);
 
-/* Save/load project */
+/* Save/load project (.feproj JSON with embedded per-photo states) */
 int fe_project_save(FeProject *proj, const char *path);
 int fe_project_load(FeProject *proj, const char *path);
 

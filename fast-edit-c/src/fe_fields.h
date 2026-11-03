@@ -24,6 +24,14 @@
    exists. */
 ptrdiff_t fe_settings_field_offset(const char *name);
 
+/* Minimum allowed value for `name` (e.g. 0.0 for grain_amount, 0.6 for
+   grain_size), or -1e9 when the field has no lower floor. */
+double fe_settings_field_floor(const char *name);
+
+/* Apply a single named offset to `settings`, clamping at the field's floor.
+   Returns 1 if `name` is a known setting, 0 otherwise. */
+int fe_settings_apply_offset(FeSettings *settings, const char *name, double delta);
+
 /* How many named fields the table holds. */
 int fe_settings_field_count(void);
 
