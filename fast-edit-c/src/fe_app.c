@@ -77,6 +77,7 @@ void fe_app_find_filters_root(char *out, size_t out_len) {
     char exedir[FE_PATH_MAX];
     fe_exe_dir(exedir, sizeof(exedir));
     if (exedir[0]) {
+        snprintf(candidates[n++], FE_PATH_MAX, "%s/filters", exedir);
         snprintf(candidates[n++], FE_PATH_MAX, "%s/../../filters", exedir);
         snprintf(candidates[n++], FE_PATH_MAX, "%s/../filters", exedir);
     }

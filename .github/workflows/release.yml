@@ -1,0 +1,66 @@
+name: Build & Release
+
+on:
+  push:
+    branches:
+      - master
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build Linux Release & Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            pkg-config \
+            libgtk-3-dev \
+            libcairo2-dev \
+            libraw-dev
+
+      - name: Build fast-edit (C / GTK3)
+        working-directory: fast-edit-c
+        run: |
+          make CFLAGS="-O3 -std=c11 -Wall -Wextra -Wno-unused-parameter -D_GNU_SOURCE -fopenmp"
+          make selftest
+
+      - name: Package release archive
+        id: package
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          COMMIT_COUNT=$(git rev-list --count HEAD)
+          TAG="v0.${COMMIT_COUNT}-${SHORT_SHA}"
+          ARCHIVE="fast-edit-linux-x86_64-${TAG}.tar.gz"
+
+          mkdir -p dist/fast-edit
+          cp fast-edit-c/build/fast-edit dist/fast-edit/
+          cp -r filters dist/fast-edit/
+          cp fast-edit-v2.py Makefile README.md dist/fast-edit/
+
+          tar -czf "${ARCHIVE}" -C dist fast-edit
+          sha256sum "${ARCHIVE}" > "${ARCHIVE}.sha256"
+
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "archive=${ARCHIVE}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.package.outputs.tag }}
+          name: "fast-edit ${{ steps.package.outputs.tag }}"
+          generate_release_notes: true
+          files: |
+            ${{ steps.package.outputs.archive }}
+            ${{ steps.package.outputs.archive }}.sha256
